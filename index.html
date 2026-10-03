@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>视频号发布时段数据统计</title>
+<!-- build: 2026-10-04 00:03 | records: 35 -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body{
+  background:#EEF2F7;color:#1F2937;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.85;-webkit-font-smoothing:antialiased;
+  padding-bottom:28px;
+}
+.page{max-width:640px;margin:0 auto;background:#EEF2F7;}
+
+/* ---------- 头部 ---------- */
+.hero{background:linear-gradient(150deg,#0D47A1 0%,#1565C0 52%,#1E88E5 100%);
+  color:#fff;padding:26px 20px 22px;}
+.hero .eyebrow{font-size:11.5px;letter-spacing:2px;opacity:.75;margin-bottom:9px;}
+.hero h1{font-size:21px;font-weight:700;line-height:1.45;letter-spacing:.4px;}
+.hero .meta{margin-top:11px;font-size:12.5px;line-height:1.9;opacity:.92;}
+.hero .meta b{font-weight:600;}
+.hero .pill{display:inline-block;margin-top:13px;padding:4px 12px;border-radius:20px;
+  background:rgba(255,255,255,.2);font-size:11.5px;letter-spacing:.3px;}
+
+/* ---------- 概览 ---------- */
+.ov{display:flex;flex-wrap:wrap;background:#fff;margin:0 0 14px;}
+.ov .cell{width:50%;padding:15px 16px;border-bottom:1px solid #EEF2F7;}
+.ov .cell:nth-child(odd){border-right:1px solid #EEF2F7;}
+.ov .cell:nth-child(3),.ov .cell:nth-child(4){border-bottom:none;}
+.ov .k{font-size:11.5px;color:#9CA3AF;letter-spacing:.3px;}
+.ov .v{font-size:24px;font-weight:700;color:#0D47A1;line-height:1.25;margin-top:3px;
+  font-variant-numeric:tabular-nums;}
+.ov .v span{font-size:12px;font-weight:400;color:#9CA3AF;margin-left:2px;}
+
+/* ---------- 区块 ---------- */
+section{background:#fff;padding:20px 18px 22px;margin-bottom:12px;}
+section h2{font-size:16px;font-weight:700;color:#0D47A1;line-height:1.5;
+  padding-left:10px;border-left:4px solid #1565C0;margin-bottom:6px;}
+section .desc{font-size:12.5px;color:#9CA3AF;line-height:1.75;padding-left:14px;margin-bottom:15px;}
+
+/* ---------- 表格 ---------- */
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+th,td{padding:9px 5px;border-bottom:1px solid #EEF2F7;text-align:left;vertical-align:middle;}
+thead th{background:#F8FAFC;font-size:12px;color:#4B5563;font-weight:600;white-space:nowrap;
+  border-bottom:1.5px solid #DCE3EC;}
+td.n,th.n{text-align:right;}
+td.v{font-weight:700;color:#0D47A1;font-size:15px;}
+td.g{color:#4B5563;}
+tr.sum td,tr.sum th{background:#F2F6FC;font-weight:700;color:#0D47A1;border-bottom:none;}
+tr.sum td.g{font-weight:600;color:#4B5563;}
+
+/* 时段单元格 */
+.tcell{display:flex;align-items:center;gap:7px;}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px;}
+.tname{font-weight:600;font-size:13.5px;white-space:nowrap;}
+.tsub{display:block;font-size:10.5px;color:#9CA3AF;font-weight:400;line-height:1.5;}
+
+/* ---------- 中位数卡片 ---------- */
+.mcards{display:flex;flex-direction:column;gap:9px;}
+.mcard{border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;}
+.mcard .mhd{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:#1F2937;
+  padding-bottom:9px;margin-bottom:9px;border-bottom:1px dashed #E5E7EB;}
+.mcard .mhd em{font-style:normal;font-weight:400;font-size:11px;color:#9CA3AF;margin-left:auto;}
+.mrow{display:flex;align-items:baseline;font-size:12.5px;color:#4B5563;padding:3px 0;}
+.mrow .ml{width:52px;flex:0 0 52px;color:#9CA3AF;}
+.mrow .mv{flex:1;font-variant-numeric:tabular-nums;}
+.mrow .mv b{font-weight:700;color:#0D47A1;font-size:14.5px;}
+.mrow .md{width:66px;flex:0 0 66px;text-align:right;color:#6B7280;font-variant-numeric:tabular-nums;}
+
+/* ---------- 条形图 ---------- */
+.bars{display:flex;flex-direction:column;gap:13px;}
+.bar .bt{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#4B5563;margin-bottom:5px;}
+.bar .bt .bv{margin-left:auto;font-weight:700;color:#0D47A1;font-size:14.5px;
+  font-variant-numeric:tabular-nums;}
+.bar .track{height:11px;background:#EEF2F7;border-radius:6px;overflow:hidden;}
+.bar .fill{height:100%;border-radius:6px;}
+
+/* ---------- 差异矩阵 ---------- */
+.mxwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table.mx{font-size:12px;}
+table.mx th,table.mx td{padding:8px 4px;text-align:right;white-space:nowrap;}
+table.mx .corner{text-align:left;font-size:10.5px;color:#9CA3AF;font-weight:500;line-height:1.4;}
+table.mx .mh{text-align:right;font-weight:600;color:#4B5563;font-size:12px;line-height:1.35;}
+table.mx .mh i{display:block;font-style:normal;font-size:9.5px;color:#ADB5BF;font-weight:400;}
+table.mx td.self{color:#C7CDD4;}
+table.mx td.pv{color:#B03A3A;font-weight:600;}
+table.mx td.nv{color:#2E7D32;font-weight:600;}
+
+/* ---------- 明细 ---------- */
+.grp{margin-bottom:20px;}
+.grp:last-child{margin-bottom:0;}
+.ghd{display:flex;align-items:center;gap:7px;padding:8px 0 8px 11px;border-left:3px solid #1565C0;
+  font-size:13.5px;font-weight:700;color:#1F2937;}
+.ghd .gsum{margin-left:auto;font-size:11px;font-weight:400;color:#9CA3AF;text-align:right;line-height:1.5;}
+table.dt{font-size:13.5px;margin-top:7px;}
+table.dt thead th{background:transparent;padding:6px 5px;font-size:11.5px;}
+table.dt td{padding:8px 5px;}
+table.dt td.date{font-weight:600;}
+table.dt .dl{display:block;font-size:10.5px;color:#ADB5BF;font-weight:400;line-height:1.4;}
+
+/* ---------- 结论 / 提示 ---------- */
+ol.cl{list-style:none;}
+ol.cl li{position:relative;padding-left:25px;margin-bottom:15px;font-size:14px;line-height:1.85;
+  color:#374151;}
+ol.cl li:last-child{margin-bottom:0;}
+ol.cl li .idx{position:absolute;left:0;top:1px;width:18px;height:18px;line-height:18px;
+  border-radius:50%;background:#E3F2FD;color:#0D47A1;font-size:11px;font-weight:700;text-align:center;}
+ol.cl li b{color:#0D47A1;}
+ol.cl li strong{color:#0D47A1;font-weight:700;}
+
+.callout{background:#F7FAFD;border-left:3px solid #1565C0;border-radius:0 8px 8px 0;
+  padding:13px 15px;font-size:13px;line-height:1.8;color:#4B5563;margin-top:16px;}
+.callout b,ol.cl + .callout strong{color:#1F2937;}
+.callout.warn{background:#FFFBF0;border-left-color:#F0A02A;}
+.callout.warn .ct{color:#8A5A00;font-weight:700;display:block;margin-bottom:5px;}
+.callout.warn b{color:#8A5A00;}
+.callout .num{color:#8A5A00;font-weight:700;}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:#6B7280;margin-top:11px;}
+.legend i{font-style:normal;display:inline-flex;align-items:center;gap:5px;}
+.legend i::before{content:"";width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+footer{text-align:center;font-size:11.5px;color:#9CA3AF;line-height:2;padding:18px 20px 4px;}
+footer .ln{display:block;height:1px;background:#DCE3EC;margin:0 0 14px;}
+
+@media (min-width:480px){
+  section{border-radius:12px;padding:22px 22px 24px;}
+  .page{padding:0 12px;}
+  .hero{border-radius:0 0 12px 12px;}
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+<div class="hero">
+  <div class="eyebrow">视频号 · 发布时段数据统计</div>
+  <h1>四时段发布效果对照</h1>
+  <div class="meta">样本期间 <b>8月3日 – 10月3日</b>　·　共 <b>35</b> 条记录</div>
+  <span class="pill">按视频发布时刻归入所属时段</span>
+</div>
+<div class="ov">
+  <div class="cell"><div class="k">样本条数</div><div class="v">35<span>条</span></div></div>
+  <div class="cell"><div class="k">平均播放量</div><div class="v">78.20</div></div>
+  <div class="cell"><div class="k">平均点赞量</div><div class="v">14.74</div></div>
+  <div class="cell"><div class="k">整体点赞率</div><div class="v">18.85<span>%</span></div></div>
+</div>
+<section>
+  <h2>一、四时段汇总</h2>
+  <p class="desc">「次数」为该时段内的记录条数；点赞率 = 该时段点赞合计 ÷ 播放合计。</p>
+  <table>
+    <thead><tr><th>时段</th><th class="n">次数</th><th class="n">均播放</th><th class="n">均点赞</th><th class="n">点赞率</th></tr></thead>
+    <tbody>
+      <tr><td><div class="tcell"><span class="dot" style="background:#7E57C2"></span><span><span class="tname">深夜</span><span class="tsub">23:01–10:00</span></span></div></td><td class="n g">11</td><td class="n v">106.55</td><td class="n v">19.36</td><td class="n g">18.17%</td></tr>
+      <tr><td><div class="tcell"><span class="dot" style="background:#42A5F5"></span><span><span class="tname">上午</span><span class="tsub">10:01–15:00</span></span></div></td><td class="n g">6</td><td class="n v">58.00</td><td class="n v">8.50</td><td class="n g">14.66%</td></tr>
+      <tr><td><div class="tcell"><span class="dot" style="background:#26A69A"></span><span><span class="tname">下午</span><span class="tsub">15:01–19:00</span></span></div></td><td class="n g">9</td><td class="n v">55.22</td><td class="n v">11.78</td><td class="n g">21.33%</td></tr>
+      <tr><td><div class="tcell"><span class="dot" style="background:#EF5350"></span><span><span class="tname">晚间</span><span class="tsub">19:01–23:00</span></span></div></td><td class="n g">9</td><td class="n v">80.00</td><td class="n v">16.22</td><td class="n g">20.28%</td></tr>
+      <tr class="sum"><td><div class="tcell"><span class="tname">合计</span><span class="tsub">全样本 35 条</span></div></td><td class="n g">35</td><td class="n v">78.20</td><td class="n v">14.74</td><td class="n g">18.85%</td></tr>
+    </tbody>
+  </table>
+  <div class="legend"><i style="--c:#7E57C2"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#7E57C2"></span>深夜 23:01–10:00</i><i style="--c:#42A5F5"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#42A5F5"></span>上午 10:01–15:00</i><i style="--c:#26A69A"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#26A69A"></span>下午 15:01–19:00</i><i style="--c:#EF5350"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#EF5350"></span>晚间 19:01–23:00</i></div>
+</section>
+<section>
+  <h2>二、均值与中位数对照</h2>
+  <p class="desc">用来检验均值是否被个别极端值带偏。两者方向一致说明结论稳健；差距越大，说明该时段内部分化越明显。</p>
+  <div class="mcards">
+    <div class="mcard">
+      <div class="mhd"><span class="dot" style="background:#7E57C2;width:9px;height:9px;border-radius:50%;display:inline-block"></span><span>深夜　23:01–10:00</span><em>11 条</em></div>
+      <div class="mrow"><span class="ml">播放</span><span class="mv">均值 <b>106.55</b>　中位 111.00</span><span class="md">-4.45</span></div>
+      <div class="mrow"><span class="ml">点赞</span><span class="mv">均值 <b>19.36</b>　中位 16.00</span><span class="md">+3.36</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mhd"><span class="dot" style="background:#42A5F5;width:9px;height:9px;border-radius:50%;display:inline-block"></span><span>上午　10:01–15:00</span><em>6 条</em></div>
+      <div class="mrow"><span class="ml">播放</span><span class="mv">均值 <b>58.00</b>　中位 51.50</span><span class="md">+6.50</span></div>
+      <div class="mrow"><span class="ml">点赞</span><span class="mv">均值 <b>8.50</b>　中位 7.50</span><span class="md">+1.00</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mhd"><span class="dot" style="background:#26A69A;width:9px;height:9px;border-radius:50%;display:inline-block"></span><span>下午　15:01–19:00</span><em>9 条</em></div>
+      <div class="mrow"><span class="ml">播放</span><span class="mv">均值 <b>55.22</b>　中位 47.00</span><span class="md">+8.22</span></div>
+      <div class="mrow"><span class="ml">点赞</span><span class="mv">均值 <b>11.78</b>　中位 11.00</span><span class="md">+0.78</span></div>
+    </div>
+    <div class="mcard">
+      <div class="mhd"><span class="dot" style="background:#EF5350;width:9px;height:9px;border-radius:50%;display:inline-block"></span><span>晚间　19:01–23:00</span><em>9 条</em></div>
+      <div class="mrow"><span class="ml">播放</span><span class="mv">均值 <b>80.00</b>　中位 82.00</span><span class="md">-2.00</span></div>
+      <div class="mrow"><span class="ml">点赞</span><span class="mv">均值 <b>16.22</b>　中位 10.00</span><span class="md">+6.22</span></div>
+    </div>
+  </div>
+  <div class="callout"><strong>读法：</strong>均值高于中位数越多，说明该时段存在拉高均值的单条高值，此时「中位数」比「均值」更能代表该时段的典型水平。</div>
+</section>
+<section>
+  <h2>三、两项均值分布</h2>
+  <p class="desc">柱长按四段最大值等比缩放。</p>
+  <div class="bars">
+    <div class="bar"><div class="bt"><span class="dot" style="background:#7E57C2"></span><span>深夜　<span style="font-size:11px;color:#9CA3AF">23:01–10:00</span></span><span class="bv">106.55</span></div><div class="track"><div class="fill" style="width:100.00%;background:#7E57C2"></div></div></div>
+    <div class="bar"><div class="bt"><span class="dot" style="background:#EF5350"></span><span>晚间　<span style="font-size:11px;color:#9CA3AF">19:01–23:00</span></span><span class="bv">80.00</span></div><div class="track"><div class="fill" style="width:75.09%;background:#EF5350"></div></div></div>
+    <div class="bar"><div class="bt"><span class="dot" style="background:#42A5F5"></span><span>上午　<span style="font-size:11px;color:#9CA3AF">10:01–15:00</span></span><span class="bv">58.00</span></div><div class="track"><div class="fill" style="width:54.44%;background:#42A5F5"></div></div></div>
+    <div class="bar"><div class="bt"><span class="dot" style="background:#26A69A"></span><span>下午　<span style="font-size:11px;color:#9CA3AF">15:01–19:00</span></span><span class="bv">55.22</span></div><div class="track"><div class="fill" style="width:51.83%;background:#26A69A"></div></div></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="bars">
+    <div class="bar"><div class="bt"><span class="dot" style="background:#7E57C2"></span><span>深夜　<span style="font-size:11px;color:#9CA3AF">23:01–10:00</span></span><span class="bv">19.36</span></div><div class="track"><div class="fill" style="width:100.00%;background:#7E57C2"></div></div></div>
+    <div class="bar"><div class="bt"><span class="dot" style="background:#EF5350"></span><span>晚间　<span style="font-size:11px;color:#9CA3AF">19:01–23:00</span></span><span class="bv">16.22</span></div><div class="track"><div class="fill" style="width:83.78%;background:#EF5350"></div></div></div>
+    <div class="bar"><div class="bt"><span class="dot" style="background:#26A69A"></span><span>下午　<span style="font-size:11px;color:#9CA3AF">15:01–19:00</span></span><span class="bv">11.78</span></div><div class="track"><div class="fill" style="width:60.82%;background:#26A69A"></div></div></div>
+    <div class="bar"><div class="bt"><span class="dot" style="background:#42A5F5"></span><span>上午　<span style="font-size:11px;color:#9CA3AF">10:01–15:00</span></span><span class="bv">8.50</span></div><div class="track"><div class="fill" style="width:43.90%;background:#42A5F5"></div></div></div>
+  </div>
+  <div class="callout"><strong>两点对比着看：</strong>平均播放量最高 106.55、最低 55.22，最高比最低高 <strong>92.94%</strong>；平均点赞量最高 19.36、最低 8.50，最高比最低高 <strong>127.81%</strong>。时段对「点赞」的影响幅度，明显大于对「播放」的影响幅度。</div>
+</section>
+<section>
+  <h2>四、时段互相相差的百分比</h2>
+  <p class="desc">读法：横行为被比较时段、纵列为基准时段，数值 = 行 ÷ 列 − 1。例如「深夜」行 × 「下午」列 = +92.94%，表示深夜段平均播放比下午段高 92.94%。</p>
+  <div style="font-size:13px;font-weight:700;color:#0D47A1;margin:2px 0 8px">平均播放量</div>
+<div class="mxwrap">
+  <table class="mx">
+    <tr><th class="corner">行 ＼ 基准</th><th class="mh"><span class="dot" style="background:#7E57C2;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>深夜<i>23:01–10:00</i></th><th class="mh"><span class="dot" style="background:#42A5F5;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>上午<i>10:01–15:00</i></th><th class="mh"><span class="dot" style="background:#26A69A;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>下午<i>15:01–19:00</i></th><th class="mh"><span class="dot" style="background:#EF5350;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>晚间<i>19:01–23:00</i></th></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#7E57C2;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>深夜<i>23:01–10:00</i></th><td class="self">—</td><td class="pv">+83.70%</td><td class="pv">+92.94%</td><td class="pv">+33.18%</td></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#42A5F5;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>上午<i>10:01–15:00</i></th><td class="nv">-45.56%</td><td class="self">—</td><td class="pv">+5.03%</td><td class="nv">-27.50%</td></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#26A69A;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>下午<i>15:01–19:00</i></th><td class="nv">-48.17%</td><td class="nv">-4.79%</td><td class="self">—</td><td class="nv">-30.97%</td></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#EF5350;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>晚间<i>19:01–23:00</i></th><td class="nv">-24.91%</td><td class="pv">+37.93%</td><td class="pv">+44.87%</td><td class="self">—</td></tr>
+  </table>
+</div>
+  <div style="font-size:13px;font-weight:700;color:#0D47A1;margin:22px 0 8px">平均点赞量</div>
+<div class="mxwrap">
+  <table class="mx">
+    <tr><th class="corner">行 ＼ 基准</th><th class="mh"><span class="dot" style="background:#7E57C2;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>深夜<i>23:01–10:00</i></th><th class="mh"><span class="dot" style="background:#42A5F5;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>上午<i>10:01–15:00</i></th><th class="mh"><span class="dot" style="background:#26A69A;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>下午<i>15:01–19:00</i></th><th class="mh"><span class="dot" style="background:#EF5350;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>晚间<i>19:01–23:00</i></th></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#7E57C2;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>深夜<i>23:01–10:00</i></th><td class="self">—</td><td class="pv">+127.81%</td><td class="pv">+64.41%</td><td class="pv">+19.36%</td></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#42A5F5;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>上午<i>10:01–15:00</i></th><td class="nv">-56.10%</td><td class="self">—</td><td class="nv">-27.83%</td><td class="nv">-47.60%</td></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#26A69A;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>下午<i>15:01–19:00</i></th><td class="nv">-39.18%</td><td class="pv">+38.56%</td><td class="self">—</td><td class="nv">-27.40%</td></tr>
+    <tr><th class="mh" style="text-align:left"><span class="dot" style="background:#EF5350;width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px"></span>晚间<i>19:01–23:00</i></th><td class="nv">-16.22%</td><td class="pv">+90.85%</td><td class="pv">+37.74%</td><td class="self">—</td></tr>
+  </table>
+</div>
+  <div class="callout warn"><span class="ct">⚠️ 数值方向说明</span>正数（棕红）＝ 该行时段高于基准时段；负数（绿色）＝ 低于基准时段。两个矩阵中差距最大的一格：播放量 <b>+92.94%</b>（深夜 对 下午），点赞量 <b>+127.81%</b>（深夜 对 上午）。</div>
+</section>
+<section>
+  <h2>五、逐条明细归类</h2>
+  <p class="desc">播放量／点赞数下方小字为该条与所在时段均值的差值（＋高于均值，－低于均值）。</p>
+  <div class="grp">
+    <div class="ghd" style="border-left-color:#7E57C2"><span class="dot" style="background:#7E57C2"></span><span>23:01–10:00</span><span class="gsum">11 条<br>均播放 106.55 · 均点赞 19.36</span></div>
+    <table class="dt"><thead><tr><th>日期</th><th class="n">时间</th><th class="n">播放量</th><th class="n">点赞数</th></tr></thead><tbody>
+      <tr><td class="date">8月18日</td><td class="n g">23:34</td><td class="n">52<span class="dl">-54.5</span></td><td class="n">22<span class="dl">+2.6</span></td></tr>
+      <tr><td class="date">8月20日</td><td class="n g">0:28</td><td class="n">41<span class="dl">-65.5</span></td><td class="n">8<span class="dl">-11.4</span></td></tr>
+      <tr><td class="date">8月24日</td><td class="n g">0:42</td><td class="n">87<span class="dl">-19.5</span></td><td class="n">14<span class="dl">-5.4</span></td></tr>
+      <tr><td class="date">9月23日</td><td class="n g">0:45</td><td class="n">130<span class="dl">+23.5</span></td><td class="n">19<span class="dl">-0.4</span></td></tr>
+      <tr><td class="date">9月26日</td><td class="n g">0:45</td><td class="n">204<span class="dl">+97.5</span></td><td class="n">35<span class="dl">+15.6</span></td></tr>
+      <tr><td class="date">9月27日</td><td class="n g">0:41</td><td class="n">111<span class="dl">+4.5</span></td><td class="n">21<span class="dl">+1.6</span></td></tr>
+      <tr><td class="date">9月29日</td><td class="n g">0:41</td><td class="n">114<span class="dl">+7.5</span></td><td class="n">37<span class="dl">+17.6</span></td></tr>
+      <tr><td class="date">9月30日</td><td class="n g">0:46</td><td class="n">113<span class="dl">+6.5</span></td><td class="n">14<span class="dl">-5.4</span></td></tr>
+      <tr><td class="date">10月1日</td><td class="n g">0:59</td><td class="n">88<span class="dl">-18.5</span></td><td class="n">13<span class="dl">-6.4</span></td></tr>
+      <tr><td class="date">10月2日</td><td class="n g">0:47</td><td class="n">61<span class="dl">-45.5</span></td><td class="n">14<span class="dl">-5.4</span></td></tr>
+      <tr><td class="date">10月3日</td><td class="n g">0:47</td><td class="n">171<span class="dl">+64.5</span></td><td class="n">16<span class="dl">-3.4</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="grp">
+    <div class="ghd" style="border-left-color:#42A5F5"><span class="dot" style="background:#42A5F5"></span><span>10:01–15:00</span><span class="gsum">6 条<br>均播放 58.00 · 均点赞 8.50</span></div>
+    <table class="dt"><thead><tr><th>日期</th><th class="n">时间</th><th class="n">播放量</th><th class="n">点赞数</th></tr></thead><tbody>
+      <tr><td class="date">8月3日</td><td class="n g">13:46</td><td class="n">53<span class="dl">-5.0</span></td><td class="n">7<span class="dl">-1.5</span></td></tr>
+      <tr><td class="date">8月15日</td><td class="n g">14:42</td><td class="n">55<span class="dl">-3.0</span></td><td class="n">22<span class="dl">+13.5</span></td></tr>
+      <tr><td class="date">8月17日</td><td class="n g">13:20</td><td class="n">103<span class="dl">+45.0</span></td><td class="n">11<span class="dl">+2.5</span></td></tr>
+      <tr><td class="date">8月26日</td><td class="n g">12:11</td><td class="n">44<span class="dl">-14.0</span></td><td class="n">1<span class="dl">-7.5</span></td></tr>
+      <tr><td class="date">8月31日</td><td class="n g">14:47</td><td class="n">43<span class="dl">-15.0</span></td><td class="n">2<span class="dl">-6.5</span></td></tr>
+      <tr><td class="date">9月1日</td><td class="n g">11:27</td><td class="n">50<span class="dl">-8.0</span></td><td class="n">8<span class="dl">-0.5</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="grp">
+    <div class="ghd" style="border-left-color:#26A69A"><span class="dot" style="background:#26A69A"></span><span>15:01–19:00</span><span class="gsum">9 条<br>均播放 55.22 · 均点赞 11.78</span></div>
+    <table class="dt"><thead><tr><th>日期</th><th class="n">时间</th><th class="n">播放量</th><th class="n">点赞数</th></tr></thead><tbody>
+      <tr><td class="date">8月6日</td><td class="n g">16:25</td><td class="n">40<span class="dl">-15.2</span></td><td class="n">16<span class="dl">+4.2</span></td></tr>
+      <tr><td class="date">8月7日</td><td class="n g">15:20</td><td class="n">47<span class="dl">-8.2</span></td><td class="n">16<span class="dl">+4.2</span></td></tr>
+      <tr><td class="date">8月10日</td><td class="n g">16:37</td><td class="n">72<span class="dl">+16.8</span></td><td class="n">11<span class="dl">-0.8</span></td></tr>
+      <tr><td class="date">8月11日</td><td class="n g">17:46</td><td class="n">38<span class="dl">-17.2</span></td><td class="n">12<span class="dl">+0.2</span></td></tr>
+      <tr><td class="date">8月12日</td><td class="n g">16:08</td><td class="n">36<span class="dl">-19.2</span></td><td class="n">10<span class="dl">-1.8</span></td></tr>
+      <tr><td class="date">8月13日</td><td class="n g">17:30</td><td class="n">28<span class="dl">-27.2</span></td><td class="n">18<span class="dl">+6.2</span></td></tr>
+      <tr><td class="date">8月22日</td><td class="n g">15:15</td><td class="n">85<span class="dl">+29.8</span></td><td class="n">6<span class="dl">-5.8</span></td></tr>
+      <tr><td class="date">8月25日</td><td class="n g">16:48</td><td class="n">47<span class="dl">-8.2</span></td><td class="n">6<span class="dl">-5.8</span></td></tr>
+      <tr><td class="date">9月8日</td><td class="n g">18:49</td><td class="n">104<span class="dl">+48.8</span></td><td class="n">11<span class="dl">-0.8</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="grp">
+    <div class="ghd" style="border-left-color:#EF5350"><span class="dot" style="background:#EF5350"></span><span>19:01–23:00</span><span class="gsum">9 条<br>均播放 80.00 · 均点赞 16.22</span></div>
+    <table class="dt"><thead><tr><th>日期</th><th class="n">时间</th><th class="n">播放量</th><th class="n">点赞数</th></tr></thead><tbody>
+      <tr><td class="date">9月9日</td><td class="n g">22:06</td><td class="n">66<span class="dl">-14.0</span></td><td class="n">8<span class="dl">-8.2</span></td></tr>
+      <tr><td class="date">9月12日</td><td class="n g">21:06</td><td class="n">82<span class="dl">+2.0</span></td><td class="n">24<span class="dl">+7.8</span></td></tr>
+      <tr><td class="date">9月13日</td><td class="n g">21:33</td><td class="n">60<span class="dl">-20.0</span></td><td class="n">29<span class="dl">+12.8</span></td></tr>
+      <tr><td class="date">9月14日</td><td class="n g">22:04</td><td class="n">109<span class="dl">+29.0</span></td><td class="n">26<span class="dl">+9.8</span></td></tr>
+      <tr><td class="date">9月16日</td><td class="n g">22:24</td><td class="n">97<span class="dl">+17.0</span></td><td class="n">23<span class="dl">+6.8</span></td></tr>
+      <tr><td class="date">9月18日</td><td class="n g">19:48</td><td class="n">104<span class="dl">+24.0</span></td><td class="n">7<span class="dl">-9.2</span></td></tr>
+      <tr><td class="date">9月20日</td><td class="n g">21:01</td><td class="n">63<span class="dl">-17.0</span></td><td class="n">10<span class="dl">-6.2</span></td></tr>
+      <tr><td class="date">9月21日</td><td class="n g">21:46</td><td class="n">86<span class="dl">+6.0</span></td><td class="n">9<span class="dl">-7.2</span></td></tr>
+      <tr><td class="date">9月24日</td><td class="n g">21:34</td><td class="n">53<span class="dl">-27.0</span></td><td class="n">10<span class="dl">-6.2</span></td></tr>
+    </tbody></table>
+  </div>
+</section>
+<section>
+  <h2>六、结论与使用建议</h2>
+  <ol class="cl">
+<li><span class="idx">1</span><b>深夜段（23:01–10:00）已是第一档，两项均值都排四段首位。</b>样本 11 条（占全样本 31%），平均播放 <b>106.55</b>、平均点赞 <b>19.36</b>；播放比第二名晚间段高 33.18%、点赞比第二名晚间段高 19.36%。深夜段已不是偶发，而是现在最主要的发布档位。</li>
+<li><span class="idx">2</span><b>晚间段（19:01–23:00）两项均居第二。</b>平均播放 <b>80.00</b>（比最低的下午段高 44.87%）；平均点赞 <b>16.22</b>（比最低的上午段高 <b>90.85%</b>）。与深夜段相比，平均播放低 24.91%、平均点赞低 16.22%。</li>
+<li><span class="idx">3</span><b>上午段（10:01–15:00）是四段中最弱、也是唯一两项同时靠后的一档。</b>平均播放 <b>58.00</b>（倒数第二，与最低的下午段仅差 5.03%）；平均点赞 <b>8.50</b>（四段最低，仅为深夜段的 44%）；点赞率 <b>14.66%</b>（四段最低）。该段样本 6 条，方向一致。</li>
+<li><span class="idx">4</span><b>点赞率与播放量并不同向。</b>四段点赞率由高到低为：<b>下午 21.33%</b>、<b>晚间 20.28%</b>、<b>深夜 18.17%</b>、<b>上午 14.66%</b>。播放量最高的深夜段点赞率只排第 3；播放量最低的下午段点赞率反而排第 1。这说明<b>「进来的人多」和「进来的人愿意点赞」是两件事</b>——排期前要先明确这条视频是拿曝光还是拿互动。</li>
+<li><span class="idx">5</span><b>两个指标的前两名完全一致，差别只在末两位。</b>播放量与点赞量的前二均为 <b>深夜 ＞ 晚间</b>。
+末两位错位：播放量上下午段垫底（但只比上午段低 4.79%，基本持平）；点赞量上上午段垫底（比下午段低 27.83%，差距明显）。也就是说，<b>下午段的问题是「播放量」，上午段的问题是「点赞量」</b>，上午段两项同时靠后，是四段里最需要调整的档位。</li>
+</ol>
+  <div class="callout warn">
+    <span class="ct">⚠️ 样本局限（必读，直接影响结论可信度）</span>
+    <b>① 四段样本量为 11 / 6 / 9 / 9 条</b>，仍属小样本，单条数据即可明显改变均值。例如深夜段 11 条里含 1 条 204 播放的高值，直接把它从「与晚间段接近」拉到「明显第一」。<br>
+    <b>② 「时段」与「时间趋势」严重混淆</b>：9月23日之后的 9 条记录中，
+深夜段占 <span class="num">8 条</span>，而上午段 0 条、下午段 0 条、晚间段 1 条。
+也就是说，9月下旬以来的排期几乎全压在深夜档（9月26日–10月3日连续 8 条均在 0:41–0:59 发布），而这段时间账号整体播放本身处于上行区间（8月上旬多在 28–72，9月下旬起多在 60–200）。<br>
+    因此深夜段的领先里，<b>「时段效果好」和「账号本身在涨号 + 内容变好」两个原因是缠在一起的，本表无法分离</b>。<br>
+    <b>③ 要真正分离变量</b>：同一类选题、同一水平的内容，在不同时段各发一版做对照；或在同一周内把发布时刻轮换，而不是连续多天固定在同一档。
+  </div>
+</section>
+<footer>
+  <span class="ln"></span>
+  数据来源：视频号后台数据表（8月3日 – 10月3日，共 35 条）<br>
+  本页为描述性统计，未作推断性结论<br>
+  差异百分比均以被比较时段为基准计算
+</footer>
+</div>
+</body>
+</html>
